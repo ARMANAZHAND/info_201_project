@@ -79,7 +79,7 @@ shinyServer(function(input, output) {
     desc <- paste(c("The dataset in use is provided by the city of Seattle's open database.",
               "It is maintained by kaggle.com, where our team was able to access it.",
               "The dataset contains", nrow(seattleCrime), "reported crisis in the city of Seattle.",
-              "The data ranges from May 15th, 2015 to November 28th, 2018 and account for any",
+              "The data ranges from May 15th, 2015 to November 28th, 2018 and accounts for any",
               "reported crisis - being 911 calls or other alerts that law enforcement received."),
               sep = " ")
   })
@@ -96,7 +96,7 @@ shinyServer(function(input, output) {
   
   output$why <- renderText({
     desc <- paste(c("With the visualizations of this data, we hope that",
-                    "trends in crisis and crimes can be made more clear for law enforcement",
+                    "trends in crisis and crimes can be made clearer for law enforcement",
                     "to be able to do their jobs more efficiently, safely, and effectively such",
                     "that there are less risks of harm for any group in any situation that may",
                     "present itself with a faster response time."),
@@ -104,12 +104,12 @@ shinyServer(function(input, output) {
   })
   
   output$img1 <- renderImage({
-    list(src = "pics/police1.jpg", width = 1000, height = 400)
+    list(src = "pics/police1.jpg", width = 1000, height = 390)
   }, deleteFile = FALSE)
   
   
   output$img2 <- renderImage({
-    list(src = "pics/police2.jpg", width = 1000, height = 400)
+    list(src = "pics/police2.jpg", width = 1000, height = 390)
   }, deleteFile = FALSE)
   
 })

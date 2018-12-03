@@ -40,33 +40,39 @@ timeChoices <- c("00:00:00", "00:15:00", "00:30:00", "00:45:00",
 
 members <- c("Arman Azhand", "Danfeng Yang", "Madisen Arurang", "Liam O'Keeffe")
 
+alignCenter <- function(el) {
+  htmltools::tagAppendAttributes(el,
+                                 style="margin-left:auto;margin-right:auto;"
+  )
+}
+
 # Define UI for application that draws a histogram
 shinyUI(navbarPage("Seattle Crisis Statistics",
-  theme = shinytheme("sandstone"),
+  theme = shinytheme("superhero"),
   
   tabPanel("Purpose",
     titlePanel("Purpose of Our Project"),
     
     verticalLayout(
-      wellPanel(
+      alignCenter(column(12, align = "justify", wellPanel(
         textOutput("dataset")
-      ),
+      ))),
       
       mainPanel(
-        imageOutput("img1")
+          imageOutput("img1")
       ),
       
-      wellPanel(
-        textOutput("audience")
-      ),
+      alignCenter(column(12, align = "justify", wellPanel(
+          textOutput("audience")
+      ))),
       
       mainPanel(
-        imageOutput("img2")
+          imageOutput("img2")
       ),
       
-      wellPanel(
-        textOutput("why")
-      )
+      alignCenter(column(12, align = "justify", wellPanel(
+          textOutput("why")
+      )))
     )
   ),
   
@@ -110,20 +116,17 @@ shinyUI(navbarPage("Seattle Crisis Statistics",
   tabPanel("About the Team",
     titlePanel("About the Team"),
     
-    verticalLayout(
+    sidebarLayout(
       sidebarPanel(
         selectInput("person",
                     "Choose a team member:",
                     choices = members)
       ),
       
-      mainPanel(
-        imageOutput("memberImg")
-      ),
-      
-      wellPanel(
+      alignCenter(column(6, align = "center", mainPanel(
+        imageOutput("memberImg"),
         textOutput("memberDesc")
-      )
+      )))
     )
     
   )
