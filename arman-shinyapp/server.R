@@ -19,10 +19,20 @@ seattleCrime$Occurred.Date...Time <- as.POSIXct(strptime(seattleCrime$Occurred.D
 
 # Define server logic required to draw a histogram
 shinyServer(function(input, output) {
+  
+  output$aa <- renderText({
+    "Curated by Arman Azhand"
+  })
    
   output$crimeTime <- renderPlot({
-    dateTimeMin <- as.POSIXct(strptime(paste(c(str_c(input$dates[1]), input$timemin), collapse = " "), "%Y-%m-%d %H:%M:%S"))
-    dateTimeMax <- as.POSIXct(strptime(paste(c(str_c(input$dates[2]), input$timemax), collapse = " "), "%Y-%m-%d %H:%M:%S"))
+    dateTimeMin <- as.POSIXct(strptime(paste(c(str_c(input$dates[1]),
+                                               input$timemin),
+                                             collapse = " "),
+                                       "%Y-%m-%d %H:%M:%S"))
+    dateTimeMax <- as.POSIXct(strptime(paste(c(str_c(input$dates[2]),
+                                               input$timemax),
+                                             collapse = " "),
+                                       "%Y-%m-%d %H:%M:%S"))
     
     df <- filter(seattleCrime, Occurred.Date...Time >= dateTimeMin) %>%
       filter(., Occurred.Date...Time <= dateTimeMax) %>%
@@ -41,5 +51,65 @@ shinyServer(function(input, output) {
       scale_fill_discrete()
     
   })
+  
+  ## make your own desc for yourselves
+  output$memberDesc <- renderText({
+    if(input$person == "Arman Azhand") {
+      desc <- paste(c(input$person,
+                      "is a Junior pursuing a degree in Data Analytics at WSU.",
+                      "This marks his final quarter at UW after many failed attempts ",
+                      "in getting into a major. He was born in Iran, but grew up mostly",
+                      "in the UK and California. He loves playing video games,",
+                      " baking, cooking, programming, and playing musical instruments.",
+                      " He also has a super duper cute cat called Sydney."))
+    } else {
+      desc <- ""
+    }
+  })
+  
+  output$memberImg <- renderImage({
+    if(input$person == "Arman Azhand") {
+      list(src = "pics/arman.jpg", width = 400, height = 400)
+    } else {
+      
+    }
+  }, deleteFile = FALSE)
+  
+  output$dataset <- renderText({
+    desc <- paste(c("The dataset in use is provided by the city of Seattle's open database.",
+              "It is maintained by kaggle.com, where our team was able to access it.",
+              "The dataset contains", nrow(seattleCrime), "reported crisis in the city of Seattle.",
+              "The data ranges from May 15th, 2015 to November 28th, 2018 and account for any",
+              "reported crisis - being 911 calls or other alerts that law enforcement received."),
+              sep = " ")
+  })
+  
+  output$audience <- renderText({
+    desc <- paste(c("Our main audience for our analysis of this dataset are law enforcement",
+                    "in the Seattle area. Since our dataset focuses on reported crisis and crimes",
+                    "in the Seattle area, we thought it would be appropriate to gear our analysis",
+                    "towards a group that could use this data to not only aid them in their job,",
+                    "but to also save more lives and limit the possibilities of certain crisis from",
+                    "escalating in the future."), 
+                  sep = " ")
+  })
+  
+  output$why <- renderText({
+    desc <- paste(c("With the visualizations of this data, we hope that",
+                    "trends in crisis and crimes can be made more clear for law enforcement",
+                    "to be able to do their jobs more efficiently, safely, and effectively such",
+                    "that there are less risks of harm for any group in any situation that may",
+                    "present itself with a faster response time."),
+                  sep = " ")
+  })
+  
+  output$img1 <- renderImage({
+    list(src = "pics/police1.jpg", width = 1000, height = 400)
+  }, deleteFile = FALSE)
+  
+  
+  output$img2 <- renderImage({
+    list(src = "pics/police2.jpg", width = 1000, height = 400)
+  }, deleteFile = FALSE)
   
 })

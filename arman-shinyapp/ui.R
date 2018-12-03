@@ -38,36 +38,94 @@ timeChoices <- c("00:00:00", "00:15:00", "00:30:00", "00:45:00",
                  "23:00:00", "23:15:00", "23:30:00", "23:45:00",
                  "23:59:59")
 
+members <- c("Arman Azhand", "Danfeng Yang", "Madisen Arurang", "Liam O'Keeffe")
+
 # Define UI for application that draws a histogram
-shinyUI(fluidPage(
+shinyUI(navbarPage("Seattle Crisis Statistics",
   theme = shinytheme("sandstone"),
   
-  # Application title
-  titlePanel("Crime Prevalency Throughout The Day"),
-  
-  # Sidebar with a slider input for number of bins 
-  sidebarLayout(
-    sidebarPanel(
-       dateRangeInput("dates",
-                      "Date Range",
-                      start = "2017-05-05",
-                      end = "2017-05-05",
-                      min = "2015-05-15",
-                      max = "2018-11-28"),
-       
-       selectInput("timemin",
-                   "Time of Day From (@ starting date):",
-                   choices = timeChoices),
-       
-       selectInput("timemax",
-                   "Time of Day To (@ ending date):",
-                   choices = timeChoices,
-                   selected = timeChoices[97])
-    ),
+  tabPanel("Purpose",
+    titlePanel("Purpose of Our Project"),
     
-    # Show a plot of the generated distribution
-    mainPanel(
-       plotOutput("crimeTime", width = "100%", height = "850px")
+    verticalLayout(
+      wellPanel(
+        textOutput("dataset")
+      ),
+      
+      mainPanel(
+        imageOutput("img1")
+      ),
+      
+      wellPanel(
+        textOutput("audience")
+      ),
+      
+      mainPanel(
+        imageOutput("img2")
+      ),
+      
+      wellPanel(
+        textOutput("why")
+      )
     )
+  ),
+  
+  tabPanel("Q1"),
+  
+  tabPanel("Crimes at Times",
+    titlePanel("Crime Prevalency Throughout The Day"),
+    
+    # Sidebar with a slider input for number of bins 
+    sidebarLayout(
+      sidebarPanel(
+        dateRangeInput("dates",
+                       "Date Range",
+                       start = "2017-05-05",
+                       end = "2017-05-05",
+                       min = "2015-05-15",
+                       max = "2018-11-28"),
+        
+        selectInput("timemin",
+                    "Time of Day From (@ starting date):",
+                    choices = timeChoices),
+        
+        selectInput("timemax",
+                    "Time of Day To (@ ending date):",
+                    choices = timeChoices,
+                    selected = timeChoices[97]),
+        textOutput("aa")
+      ),
+      
+      # Show a plot of the generated distribution
+      mainPanel(
+        plotOutput("crimeTime", width = "100%", height = "850px")
+      )
+    )
+  ),
+  
+  tabPanel("Q3"),
+  
+  tabPanel("Q4"),
+  
+  tabPanel("About the Team",
+    titlePanel("About the Team"),
+    
+    verticalLayout(
+      sidebarPanel(
+        selectInput("person",
+                    "Choose a team member:",
+                    choices = members)
+      ),
+      
+      mainPanel(
+        imageOutput("memberImg")
+      ),
+      
+      wellPanel(
+        textOutput("memberDesc")
+      )
+    )
+    
   )
+  
 ))
