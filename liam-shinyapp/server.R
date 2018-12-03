@@ -1,26 +1,19 @@
-#
-# This is the server logic of a Shiny web application. You can run the 
-# application by clicking 'Run App' above.
-#
-# Find out more about building applications with Shiny here:
-# 
-#    http://shiny.rstudio.com/
-#
-
+library(dplyr)
 library(shiny)
+library(lubridate)
+library(ggplot2)
 
 # Define server logic required to draw a histogram
 shinyServer(function(input, output) {
-   
-  output$distPlot <- renderPlot({
-    
-    # generate bins based on input$bins from ui.R
-    x    <- faithful[, 2] 
-    bins <- seq(min(x), max(x), length.out = input$bins + 1)
-    
-    # draw the histogram with the specified number of bins
-    hist(x, breaks = bins, col = 'darkgray', border = 'white')
-    
-  })
   
+  # Ouputs line graph of frequency of crime rates per hour
+  output$graph <- renderPlot({
+    data <- read.csv("/Users/liamokeeffe/Desktop/INFO 201/info_201_project/data/crisis-data.csv", stringsAsFactors = FALSE)
+    data$Reported.Time <- hour(as.POSIXct(data$Reported.Time, format="%H:%M:%S"))
+    data <- data %>% 
+            filter(data$Reported.Time >= input$time[1], data$Reported.Time <= input$time[2])
+    subset <- data %>% group_by(data$Reported.Time) %>% count()
+    ggplot(data=subset, aes(x=subset$`data$Reported.Time`, y = subset$n, group = 1)) + geom_line() +
+      xlab("Hour of the Day") + ylab("Frequency") + ggtitle("Frequency of crime rate per hour")
+  })
 })

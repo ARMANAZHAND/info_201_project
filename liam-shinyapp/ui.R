@@ -1,33 +1,17 @@
-#
-# This is the user-interface definition of a Shiny web application. You can
-# run the application by clicking 'Run App' above.
-#
-# Find out more about building applications with Shiny here:
-# 
-#    http://shiny.rstudio.com/
-#
-
 library(shiny)
 
-# Define UI for application that draws a histogram
 shinyUI(fluidPage(
   
-  # Application title
-  titlePanel("Old Faithful Geyser Data"),
-  
-  # Sidebar with a slider input for number of bins 
+  titlePanel("Crisis Report in Seattle"),
   sidebarLayout(
     sidebarPanel(
-       sliderInput("bins",
-                   "Number of bins:",
-                   min = 1,
-                   max = 50,
-                   value = 30)
+      # slider widget that allows user to pick hour range (0-23)
+      sliderInput("time", label = h3("Select time range:"), 
+                  min = 0, max = 23, value = c(0, 23))
     ),
-    
-    # Show a plot of the generated distribution
+    # line graph of crime frequency per hour
     mainPanel(
-       plotOutput("distPlot")
+      plotOutput("graph")
     )
   )
 ))
