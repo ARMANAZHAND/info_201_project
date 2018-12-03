@@ -8,7 +8,7 @@ shinyServer(function(input, output) {
   
   # Ouputs line graph of frequency of crime rates per hour
   output$graph <- renderPlot({
-    data <- read.csv("/Users/liamokeeffe/Desktop/INFO 201/info_201_project/data/crisis-data.csv", stringsAsFactors = FALSE)
+    data <- read.csv("./data/crisis-data.csv", stringsAsFactors = FALSE)
     data$Reported.Time <- hour(as.POSIXct(data$Reported.Time, format="%H:%M:%S"))
     data <- data %>% 
             filter(data$Reported.Time >= input$time[1], data$Reported.Time <= input$time[2])

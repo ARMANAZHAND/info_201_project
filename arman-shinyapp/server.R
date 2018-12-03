@@ -62,6 +62,13 @@ shinyServer(function(input, output) {
                       "in the UK and California. He loves playing video games,",
                       " baking, cooking, programming, and playing musical instruments.",
                       " He also has a super duper cute cat called Sydney."))
+    } else if (input$person == "Liam O'Keeffe") {
+      desc <- paste(c(input$person,
+                      "is a Sophomore at the University of Wasington, interested ",
+                      "in earning a degree in Informatics. In his free time he likes ",
+                      "to play basketball, read books and hang out with friends. A fun ",
+                      "fact about him is that he was born in Tokyo, Japan and visits ",
+                      "frequently."))
     } else {
       desc <- ""
     }
@@ -70,6 +77,8 @@ shinyServer(function(input, output) {
   output$memberImg <- renderImage({
     if(input$person == "Arman Azhand") {
       list(src = "pics/arman.jpg", width = 400, height = 400)
+    } else if (input$person == "Liam O'Keeffe") {
+      list(src = "pics/liam.jpg", width = 400, height = 400)
     } else {
       
     }
