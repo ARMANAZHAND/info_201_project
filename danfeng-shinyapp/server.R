@@ -7,7 +7,9 @@ library("data.table")
 
 my_server <- function(input, output, session) {
   
-  readData <- reactive({
+  ## calculate the percentage of officer dispatched with
+  ## the most 15 initial call types
+  first_15_data <- reactive({
     data <- data.frame(read.csv("data/crisis-data.csv", header = TRUE), 
                                stringAsFactors = FALSE)
     
@@ -20,7 +22,7 @@ my_server <- function(input, output, session) {
     group_all <- group_all[order(-group_all$n), c(1,2)]
     first_15th <- head(group_all, 15)
     
-    data_first_15th <- data %>% 
+    data_first_15th <- data %>%
       filter(data$Initial.Call.Type %in% first_15th$`.$Initial.Call.Type`)
     group_dispatched <- filter(data_first_15th, str_detect(data_first_15th$CIT.Officer.Dispatched, "Y"))
     group_dispatched <- group_by(group_dispatched, group_dispatched$Initial.Call.Type) %>%
@@ -37,12 +39,15 @@ my_server <- function(input, output, session) {
     total
   })
   
+  ## allow user to select the initial call types
   output$types <- renderUI({
     data <- readData()
     checkboxGroupInput("types", "Choose Types(Max 5; Min 2 types)", choices = data$Initial.Call.Type,
                        selected = data$Initial.Call.Type[13:14])
   })
   
+  ## make a limit of how many initial call types the user
+  ## can choose. max 5 and min 2 types
   observe({
     if(length(input$types) > 5)
     {
@@ -54,8 +59,10 @@ my_server <- function(input, output, session) {
     }
   })
   
-  output$map <- renderPlot({
-    data <- readData()
+  ## make a bar plot of the percentage of officer dispatched
+  ## regarding to the initial call type.
+  output$dispatched <- renderPlot({
+    data <- first_15_data()
     
     data <- filter(data, data$Initial.Call.Type %in% input$types)
     par(mar = c(4,4,4,20))

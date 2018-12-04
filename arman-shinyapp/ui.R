@@ -139,18 +139,21 @@ shinyUI(navbarPage("Seattle Crisis Statistics",
   ),
   
   ## Third Visualization: Danfeng
-  ## Allows user to pick a date and time range
-  ## to see which types of crimes are most prevalent.
-  ## The barplot shows all types of crimes/crisis
-  ## reported throughout that time period
+  ## Allows user to pick initial call type
+  ## to see which types of crimes have the most percentage 
+  ## of officer dispatched.
+  ## The barplot shows the percentage of at most 5 and at least 2 types
+  ## of the fifthteen most prevalent 
+  ## initial call types in which the officer has dispatched.
   tabPanel("Officer Dispatched",
            titlePanel("Percentage of Officer Dispatched Regarding to Initial Call Type"),
            sidebarLayout(
              sidebarPanel(
-               uiOutput("types")
+               uiOutput("types"),
+               textOutput("dy")
              ),
              mainPanel(
-               plotOutput("map")
+               plotOutput("dispatched")
              )
            )),
   
