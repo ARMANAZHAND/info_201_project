@@ -143,7 +143,16 @@ shinyUI(navbarPage("Seattle Crisis Statistics",
   ## to see which types of crimes are most prevalent.
   ## The barplot shows all types of crimes/crisis
   ## reported throughout that time period
-  tabPanel("Q3"),
+  tabPanel("Officer Dispatched",
+           titlePanel("Percentage of Officer Dispatched Regarding to Initial Call Type"),
+           sidebarLayout(
+             sidebarPanel(
+               uiOutput("types")
+             ),
+             mainPanel(
+               plotOutput("map")
+             )
+           )),
   
   
   ## Fourth Visualization: Madisen

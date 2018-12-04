@@ -115,6 +115,12 @@ shinyServer(function(input, output) {
                       "to play basketball, read books and hang out with friends. A fun ",
                       "fact about him is that he was born in Tokyo, Japan and visits ",
                       "frequently."))
+    } else if (input$person == "Danfeng Yang") {
+      desc <- paste(c(input$person,
+                      "is a Sophomore at the University of Wasington, intended ",
+                      "to major in Informatics. She likes to go hiking with friends ",
+                      "every weekend, and have written many travel notes of different ",
+                      "places. Most of them are published on TripAdvisor."))
     } else {
       desc <- ""
     }
@@ -125,6 +131,8 @@ shinyServer(function(input, output) {
       list(src = "pics/arman.jpg", width = 400, height = 400)
     } else if (input$person == "Liam O'Keeffe") {
       list(src = "pics/liam.jpg", width = 400, height = 400)
+    } else if (input$person == "Danfeng Yang") {
+      list(src = "pics/danfeng.jpg", width = 500, height = 400)
     } else {
       
     }
