@@ -10,8 +10,12 @@
 library(shiny)
 library(dplyr)
 library(shinythemes)
+library(lubridate)
 
+## Converts CSV to Data Frame for dplyr analysis
 seattleCrime <- data.frame(read.csv("data/crisis-data.csv", header = TRUE), stringAsFactors = FALSE)
+
+## time choices for the second visualization
 timeChoices <- c("00:00:00", "00:15:00", "00:30:00", "00:45:00",
                  "01:00:00", "01:15:00", "01:30:00", "01:45:00",
                  "02:00:00", "02:15:00", "02:30:00", "02:45:00",
@@ -50,6 +54,9 @@ alignCenter <- function(el) {
 shinyUI(navbarPage("Seattle Crisis Statistics",
   theme = shinytheme("superhero"),
   
+  ## Purpose panel for our project
+  ## Briefly explains what our data is looking at, how we are looking at it
+  ## and what we hope to achieve with our analysis
   tabPanel("Purpose",
     titlePanel("Purpose of Our Project"),
     
@@ -76,12 +83,34 @@ shinyUI(navbarPage("Seattle Crisis Statistics",
     )
   ),
   
-  tabPanel("Q1"),
+  ## First Visualization: Liam
+  ## Allows user to look at hours throughout the day
+  ## from 00:00:00 to 23:00:00 and see the frequency
+  ## of crimes and crisis reported
+  tabPanel("Crime Frequency",
+    titlePanel("Crime Frequency Per Hour"),
+    sidebarLayout(
+     sidebarPanel(
+       # slider widget that allows user to pick hour range (0-23)
+       sliderInput("time1", label = h3("Select time range:"), 
+                   min = 0, max = 23, value = c(0, 23)),
+       textOutput("lo")
+     ),
+     # line graph of crime frequency per hour
+     mainPanel(
+       plotOutput("graph1")
+     )
+    )),
   
+  ## Second Visualization: Arman
+  ## Allows user to pick a date and time range
+  ## to see which types of crimes are most prevalent.
+  ## The barplot shows all types of crimes/crisis
+  ## reported throughout that time period
   tabPanel("Crimes at Times",
     titlePanel("Crime Prevalency Throughout The Day"),
     
-    # Sidebar with a slider input for number of bins 
+    # Sidebar with date range input and time range input 
     sidebarLayout(
       sidebarPanel(
         dateRangeInput("dates",
@@ -102,20 +131,63 @@ shinyUI(navbarPage("Seattle Crisis Statistics",
         textOutput("aa")
       ),
       
-      # Show a plot of the generated distribution
+      # Show a barplot of the crimes in the date-time range
       mainPanel(
         plotOutput("crimeTime", width = "100%", height = "850px")
       )
     )
   ),
   
-  tabPanel("Q3"),
+  ## Third Visualization: Danfeng
+  ## Allows user to pick initial call type
+  ## to see which types of crimes have the most percentage 
+  ## of officer dispatched.
+  ## The barplot shows the percentage of at most 5 and at least 2 types
+  ## of the fifthteen most prevalent 
+  ## initial call types in which the officer has dispatched.
+  tabPanel("Officer Dispatched",
+    titlePanel("Percentage of Officer Dispatched Regarding to Initial Call Type"),
+    sidebarLayout(
+     sidebarPanel(
+       uiOutput("types"),
+       textOutput("dy")
+     ),
+     mainPanel(
+       plotOutput("dispatched")
+     )
+    )),
   
-  tabPanel("Q4"),
   
+  ## Fourth Visualization: Madisen
+  ## Allows user to pick a month and cross identify
+  ## the proportion of reported crimes and crisis 
+  ## during that month throughout the years kept track
+  ## of in the dataset.
+  tabPanel("Crime Proportion",
+    titlePanel("Proportion of Crime by Year and Month in Seattle"),
+    sidebarLayout(
+     sidebarPanel(
+       selectInput("select4", label = h3("Select month"), 
+                   choices = list("January" = 1, "February" = 2, "March" = 3,
+                                  "April" = 4, "May" = 5, "June" = 6,
+                                  "July" = 7, "August" = 8, "September" = 9,
+                                  "October" = 10, "November" = 11, "December" = 12), 
+                   selected = 1),
+       textOutput("ma")
+     ),
+     mainPanel(
+       plotOutput("graph4")
+     )
+  )),
+  
+  ## About the team panel for our project
+  ## Gives insight on who worked on this project.
+  ## Provides a small informative paragraph and
+  ## a picture of the team member
   tabPanel("About the Team",
     titlePanel("About the Team"),
     
+    ## Lets you choose a team member
     sidebarLayout(
       sidebarPanel(
         selectInput("person",

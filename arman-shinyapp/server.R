@@ -10,18 +10,115 @@
 library(shiny)
 library(dplyr)
 library(ggplot2)
-library(stringr)
 library(shinythemes)
+library(lubridate)
+library(treemapify)
+library(stringr)
 
 seattleCrime <- data.frame(read.csv("data/crisis-data.csv", header = TRUE), stringAsFactors = FALSE)
 seattleCrime$Occurred.Date...Time <- gsub("T", " ", seattleCrime$Occurred.Date...Time)
 seattleCrime$Occurred.Date...Time <- as.POSIXct(strptime(seattleCrime$Occurred.Date...Time, "%Y-%m-%d %H:%M:%S"))
 
 # Define server logic required to draw a histogram
-shinyServer(function(input, output) {
+shinyServer(function(input, output, session) {
+  
+  output$graph1 <- renderPlot({
+    data <- read.csv("./data/crisis-data.csv", stringsAsFactors = FALSE)
+    data$Reported.Time <- hour(as.POSIXct(data$Reported.Time, format="%H:%M:%S"))
+    data <- data %>% 
+      filter(data$Reported.Time >= input$time1[1], data$Reported.Time <= input$time1[2])
+    subset <- data %>% group_by(data$Reported.Time) %>% count()
+    ggplot(data=subset, aes(x=subset$`data$Reported.Time`, y = subset$n, group = 1)) + geom_line() +
+      xlab("Hour of the Day") + ylab("Frequency") + ggtitle("Frequency of crime rate per hour")
+  })
+  ## calculate the percentage of officer dispatched with
+  ## the most 15 initial call types
+  readData <- reactive({
+    full_data <- data.frame(read.csv("data/crisis-data.csv", header = TRUE), 
+                       stringAsFactors = FALSE)
+    
+    
+    dispatched <- filter(full_data, str_detect(full_data$CIT.Officer.Dispatched, "Y"))
+    
+    group_all <- full_data %>% 
+      group_by(.$Initial.Call.Type) %>%
+      count() 
+    group_all <- group_all[order(-group_all$n), c(1,2)]
+    first_15th <- head(group_all, 15)
+    
+    data_first_15th <- full_data %>% 
+      filter(full_data$Initial.Call.Type %in% first_15th$`.$Initial.Call.Type`)
+    group_dispatched <- filter(data_first_15th, str_detect(data_first_15th$CIT.Officer.Dispatched, "Y"))
+    group_dispatched <- group_by(group_dispatched, group_dispatched$Initial.Call.Type) %>%
+      count()
+    
+    colnames(first_15th) <- c("Initial.Call.Type", "All")
+    colnames(group_dispatched) <- c("Initial.Call.Type", "Dispatched")
+    total <- merge(first_15th, group_dispatched, by = "Initial.Call.Type")
+    
+    total <- mutate(total, total$Dispatched / total$All * 100)
+    total <- total[order(total[4]), c(1,4)]
+    colnames(total) <- c("Initial.Call.Type", "Percentage")
+    
+    total
+  })
+  
+  ## allow user to select the initial call types
+  output$types <- renderUI({
+      data_15 <- readData()
+      checkboxGroupInput("types", "Choose Types(Max 5; Min 2 types)", choices = data_15$Initial.Call.Type,
+      selected = data_15$Initial.Call.Type[4:5])
+  })
+  
+  ## make a limit of how many initial call types the user
+  ## can choose. max 5 and min 2 types
+  observe({
+      data_15 <- readData()
+      if(length(input$types) > 5)
+      {
+          updateCheckboxGroupInput(session, "types", selected = tail(input$types,5))
+      }
+      if(length(input$types) < 2)
+      {
+          updateCheckboxGroupInput(session, "types", selected = data_15$Initial.Call.Type[4:5])
+      }
+  })
+  
+  ## make a bar plot of the percentage of officer dispatched
+  ## regarding to the initial call type.
+  output$dispatched <- renderPlot({
+    data_15 <- readData()
+    
+    data_15 <- filter(data_15, data_15$Initial.Call.Type %in% input$types)
+    par(mar = c(4,4,4,25))
+    
+    barplot(
+      data_15$Percentage,
+      main = "Percentage of Officer Dispatched", xlab = "Initial Call Type", 
+      ylab = "Percentage", 
+      legend = data_15$Initial.Call.Type, 
+      args.legend = list(title = "Initial Call Type", 
+                         x = "right", inset=c(-0.40,0),
+                         bty="n", xpd = TRUE),
+      col = c("blue", "red", "pink", "black", "yellow"), font.main = 4, font.lab = 4
+    )
+    
+  })
   
   output$aa <- renderText({
     "Curated by Arman Azhand"
+  })
+  
+  output$lo <- renderText({
+    "Curated by Liam O'Keeffe"
+  })
+  
+  output$ma <- renderText({
+    "Curated by Madisen Arurang"
+  })
+  
+  output$dy <- renderText({
+    "Curated by Danfeng Yang"
   })
    
   output$crimeTime <- renderPlot({
@@ -52,6 +149,28 @@ shinyServer(function(input, output) {
     
   })
   
+  output$graph4 <- renderPlot({
+    data <- read.csv("./data/crisis-data.csv", stringsAsFactors = FALSE)
+    
+    call_data <- data %>% select(Reported.Date, Initial.Call.Type) %>% 
+      mutate(Year=year(as.Date(Reported.Date))) %>% 
+      mutate(Month=month(as.Date(Reported.Date)))
+    
+    grouped <- arrange(call_data, Year) %>%
+      filter(Year > 1900) %>%
+      filter(Month == input$select4)
+    
+    yearWeights <- count(grouped, Year)
+    crimeSum <- sum(yearWeights$n)
+    yearWeights <- mutate(yearWeights, weight=n/crimeSum)
+    
+    # Construct a tree plot with years and weights
+    ggplot(yearWeights, aes(area = n, fill = weight, label = Year)) +
+      geom_treemap() +
+      geom_treemap_text(colour = "white", place = "centre",
+                        grow = FALSE) 
+  })
+  
   ## make your own desc for yourselves
   output$memberDesc <- renderText({
     if(input$person == "Arman Azhand") {
@@ -69,6 +188,18 @@ shinyServer(function(input, output) {
                       "to play basketball, read books and hang out with friends. A fun ",
                       "fact about him is that he was born in Tokyo, Japan and visits ",
                       "frequently."))
+    } else if (input$person == "Danfeng Yang") {
+      desc <- paste(c(input$person,
+                      "is a Sophomore at the University of Wasington, intended ",
+                      "to major in Informatics. She likes to go hiking with friends ",
+                      "every weekend, and have written many travel notes of different ",
+                      "places. Most of them are published on TripAdvisor."))
+    } else if (input$person == "Madisen Arurang") {
+      desc <- paste(c(input$person,
+                      "is a Senior at the University of Wasington, studying ",
+                      "Human Centered Design & Engineering. In her free time, she enjoys ",
+                      "going for runs, playing on an IM bball team, and getting bubble tea  ",
+                      "or sushi with friends."))
     } else {
       desc <- ""
     }
@@ -79,6 +210,10 @@ shinyServer(function(input, output) {
       list(src = "pics/arman.jpg", width = 400, height = 400)
     } else if (input$person == "Liam O'Keeffe") {
       list(src = "pics/liam.jpg", width = 400, height = 400)
+    } else if (input$person == "Danfeng Yang") {
+      list(src = "pics/danfeng.jpg", width = 500, height = 400)
+    } else if (input$person == "Madisen Arurang") {
+      list(src = "pics/madisen.jpg", width = 300, height = 400)
     } else {
       
     }
@@ -99,16 +234,18 @@ shinyServer(function(input, output) {
                     "in the Seattle area, we thought it would be appropriate to gear our analysis",
                     "towards a group that could use this data to not only aid them in their job,",
                     "but to also save more lives and limit the possibilities of certain crisis from",
-                    "escalating in the future."), 
+                    "escalating in the future. In other words, our analysis of the dataset will prove",
+                    "to be most useful to not only our audience, but the safety and well-being of",
+                    "the citizens of Seattle."), 
                   sep = " ")
   })
   
   output$why <- renderText({
     desc <- paste(c("With the visualizations of this data, we hope that",
                     "trends in crisis and crimes can be made clearer for law enforcement",
-                    "to be able to do their jobs more efficiently, safely, and effectively such",
-                    "that there are less risks of harm for any group in any situation that may",
-                    "present itself with a faster response time."),
+                    "to be able to do their jobs more efficiently, safely, and effectively. Our",
+                    "biggest wish is for there to be less risks of harm for any group in any",
+                    "situation that may present itself with a faster response time."),
                   sep = " ")
   })
   
