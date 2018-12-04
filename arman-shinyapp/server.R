@@ -169,7 +169,7 @@ shinyServer(function(input, output, session) {
       mutate(month_name=month.abb[Month])
     
     crime_sum <- sum(crime_counts$n)
-    crime_counts <- mutate(crime_counts, proportion=-n/crimeSum)
+    crime_counts <- mutate(crime_counts, proportion=-n/crime_sum)
     
     # Construct a tree plot with years and weights
     ggplot(crime_counts, aes(area = n, fill = proportion, label = month_name)) +
