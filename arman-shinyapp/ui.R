@@ -11,6 +11,7 @@ library(shiny)
 library(dplyr)
 library(shinythemes)
 library(lubridate)
+library(rsconnect)
 
 ## Converts CSV to Data Frame for dplyr analysis
 seattleCrime <- data.frame(read.csv("data/crisis-data.csv", header = TRUE), stringAsFactors = FALSE)

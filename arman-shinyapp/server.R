@@ -14,10 +14,16 @@ library(shinythemes)
 library(lubridate)
 library(treemapify)
 library(stringr)
+library(rsconnect)
 
 seattleCrime <- data.frame(read.csv("data/crisis-data.csv", header = TRUE), stringAsFactors = FALSE)
 seattleCrime$Occurred.Date...Time <- gsub("T", " ", seattleCrime$Occurred.Date...Time)
 seattleCrime$Occurred.Date...Time <- as.POSIXct(strptime(seattleCrime$Occurred.Date...Time, "%Y-%m-%d %H:%M:%S"))
+
+
+
+rsconnect::setAccountInfo(name='armanazhand', token='75CF958551D0400A9FACC5DACC1986A7', secret='CMONJ3Sh0nB6f9hyVfzpBeN7rd5fTdKNxWvTBwN1')
+
 
 # Define server logic required to draw a histogram
 shinyServer(function(input, output, session) {
@@ -214,8 +220,6 @@ shinyServer(function(input, output, session) {
       list(src = "pics/danfeng.jpg", width = 500, height = 400)
     } else if (input$person == "Madisen Arurang") {
       list(src = "pics/madisen.jpg", width = 300, height = 400)
-    } else {
-      
     }
   }, deleteFile = FALSE)
   
