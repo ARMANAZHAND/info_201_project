@@ -20,7 +20,7 @@ seattleCrime$Occurred.Date...Time <- gsub("T", " ", seattleCrime$Occurred.Date..
 seattleCrime$Occurred.Date...Time <- as.POSIXct(strptime(seattleCrime$Occurred.Date...Time, "%Y-%m-%d %H:%M:%S"))
 
 # Define server logic required to draw a histogram
-shinyServer(function(input, output) {
+shinyServer(function(input, output, session) {
   
   output$graph1 <- renderPlot({
     data <- read.csv("./data/crisis-data.csv", stringsAsFactors = FALSE)
@@ -31,7 +31,8 @@ shinyServer(function(input, output) {
     ggplot(data=subset, aes(x=subset$`data$Reported.Time`, y = subset$n, group = 1)) + geom_line() +
       xlab("Hour of the Day") + ylab("Frequency") + ggtitle("Frequency of crime rate per hour")
   })
-  
+  ## calculate the percentage of officer dispatched with
+  ## the most 15 initial call types
   readData <- reactive({
     data <- data.frame(read.csv("data/crisis-data.csv", header = TRUE), 
                        stringAsFactors = FALSE)
@@ -62,15 +63,29 @@ shinyServer(function(input, output) {
     total
   })
   
+  ## allow user to select the initial call types
   output$types <- renderUI({
-    data <- readData()
-    checkboxGroupInput("types", "Choose Types(Max 5; Min 2 types)", choices = unique(data$Initial.Call.Type),
-                       selected = unique(data$Initial.Call.Type)[13:14])
+      data <- readData()
+      checkboxGroupInput("types", "Choose Types(Max 5; Min 2 types)", choices = data$Initial.Call.Type,
+      selected = data$Initial.Call.Type[13:14])
   })
   
+  ## make a limit of how many initial call types the user
+  ## can choose. max 5 and min 2 types
+  observe({
+      if(length(input$types) > 5)
+      {
+          updateCheckboxGroupInput(session, "types", selected = tail(input$types,5))
+      }
+      if(length(input$types) < 2)
+      {
+          updateCheckboxGroupInput(session, "types", selected = data$Initial.Call.Type[13:14])
+      }
+  })
   
-  
-  output$map <- renderPlot({
+  ## make a bar plot of the percentage of officer dispatched
+  ## regarding to the initial call type.
+  output$dispatched <- renderPlot({
     data <- readData()
     
     data <- filter(data, data$Initial.Call.Type %in% input$types)

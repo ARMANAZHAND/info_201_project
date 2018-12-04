@@ -9,7 +9,7 @@ my_server <- function(input, output, session) {
   
   ## calculate the percentage of officer dispatched with
   ## the most 15 initial call types
-  first_15_data <- reactive({
+  readData <- reactive({
     data <- data.frame(read.csv("data/crisis-data.csv", header = TRUE), 
                                stringAsFactors = FALSE)
     
@@ -62,7 +62,7 @@ my_server <- function(input, output, session) {
   ## make a bar plot of the percentage of officer dispatched
   ## regarding to the initial call type.
   output$dispatched <- renderPlot({
-    data <- first_15_data()
+    data <- readData()
     
     data <- filter(data, data$Initial.Call.Type %in% input$types)
     par(mar = c(4,4,4,20))
