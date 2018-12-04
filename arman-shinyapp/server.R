@@ -194,6 +194,12 @@ shinyServer(function(input, output, session) {
                       "to major in Informatics. She likes to go hiking with friends ",
                       "every weekend, and have written many travel notes of different ",
                       "places. Most of them are published on TripAdvisor."))
+    } else if (input$person == "Madisen Arurang") {
+      desc <- paste(c(input$person,
+                      "is a Senior at the University of Wasington, studying ",
+                      "Human Centered Design & Engineering. In her free time, she enjoys ",
+                      "going for runs, playing on an IM bball team, and getting bubble tea  ",
+                      "or sushi with friends."))
     } else {
       desc <- ""
     }
@@ -206,6 +212,8 @@ shinyServer(function(input, output, session) {
       list(src = "pics/liam.jpg", width = 400, height = 400)
     } else if (input$person == "Danfeng Yang") {
       list(src = "pics/danfeng.jpg", width = 500, height = 400)
+    } else if (input$person == "Madisen Arurang") {
+      list(src = "pics/madisen.jpg", width = 300, height = 400)
     } else {
       
     }
