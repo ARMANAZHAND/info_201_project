@@ -98,7 +98,7 @@ shinyServer(function(input, output, session) {
       ylab = "Percentage", 
       legend = data_15$Initial.Call.Type, 
       args.legend = list(title = "Initial Call Type", 
-                         x = "right", inset=c(-1.6,0),
+                         x = "right", inset=c(-0.40,0),
                          bty="n", xpd = TRUE),
       col = c("blue", "red", "pink", "black", "yellow"), font.main = 4, font.lab = 4
     )
