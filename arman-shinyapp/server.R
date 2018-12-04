@@ -12,6 +12,7 @@ library(dplyr)
 library(ggplot2)
 library(stringr)
 library(shinythemes)
+library(lubridate)
 
 seattleCrime <- data.frame(read.csv("data/crisis-data.csv", header = TRUE), stringAsFactors = FALSE)
 seattleCrime$Occurred.Date...Time <- gsub("T", " ", seattleCrime$Occurred.Date...Time)
@@ -19,6 +20,16 @@ seattleCrime$Occurred.Date...Time <- as.POSIXct(strptime(seattleCrime$Occurred.D
 
 # Define server logic required to draw a histogram
 shinyServer(function(input, output) {
+  
+  output$graph1 <- renderPlot({
+    data <- read.csv("./data/crisis-data.csv", stringsAsFactors = FALSE)
+    data$Reported.Time <- hour(as.POSIXct(data$Reported.Time, format="%H:%M:%S"))
+    data <- data %>% 
+      filter(data$Reported.Time >= input$time1[1], data$Reported.Time <= input$time1[2])
+    subset <- data %>% group_by(data$Reported.Time) %>% count()
+    ggplot(data=subset, aes(x=subset$`data$Reported.Time`, y = subset$n, group = 1)) + geom_line() +
+      xlab("Hour of the Day") + ylab("Frequency") + ggtitle("Frequency of crime rate per hour")
+  })
   
   output$aa <- renderText({
     "Curated by Arman Azhand"
@@ -99,16 +110,18 @@ shinyServer(function(input, output) {
                     "in the Seattle area, we thought it would be appropriate to gear our analysis",
                     "towards a group that could use this data to not only aid them in their job,",
                     "but to also save more lives and limit the possibilities of certain crisis from",
-                    "escalating in the future."), 
+                    "escalating in the future. In other words, our analysis of the dataset will prove",
+                    "to be most useful to not only our audience, but the safety and well-being of",
+                    "the citizens of Seattle."), 
                   sep = " ")
   })
   
   output$why <- renderText({
     desc <- paste(c("With the visualizations of this data, we hope that",
                     "trends in crisis and crimes can be made clearer for law enforcement",
-                    "to be able to do their jobs more efficiently, safely, and effectively such",
-                    "that there are less risks of harm for any group in any situation that may",
-                    "present itself with a faster response time."),
+                    "to be able to do their jobs more efficiently, safely, and effectively. Our",
+                    "biggest wish is for there to be less risks of harm for any group in any",
+                    "situation that may present itself with a faster response time."),
                   sep = " ")
   })
   

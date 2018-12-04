@@ -10,6 +10,7 @@
 library(shiny)
 library(dplyr)
 library(shinythemes)
+library(lubridate)
 
 seattleCrime <- data.frame(read.csv("data/crisis-data.csv", header = TRUE), stringAsFactors = FALSE)
 timeChoices <- c("00:00:00", "00:15:00", "00:30:00", "00:45:00",
@@ -76,7 +77,19 @@ shinyUI(navbarPage("Seattle Crisis Statistics",
     )
   ),
   
-  tabPanel("Q1"),
+  tabPanel("Q1",
+    titlePanel("Crisis Report in Seattle"),
+    sidebarLayout(
+     sidebarPanel(
+       # slider widget that allows user to pick hour range (0-23)
+       sliderInput("time1", label = h3("Select time range:"), 
+                   min = 0, max = 23, value = c(0, 23))
+     ),
+     # line graph of crime frequency per hour
+     mainPanel(
+       plotOutput("graph1")
+     )
+    )),
   
   tabPanel("Crimes at Times",
     titlePanel("Crime Prevalency Throughout The Day"),
