@@ -35,6 +35,18 @@ shinyServer(function(input, output) {
   output$aa <- renderText({
     "Curated by Arman Azhand"
   })
+  
+  output$lo <- renderText({
+    "Curated by Liam O'Keeffe"
+  })
+  
+  output$ma <- renderText({
+    "Curated by Madisen Arurang"
+  })
+  
+  output$dy <- renderText({
+    "Curated by Danfeng Yang"
+  })
    
   output$crimeTime <- renderPlot({
     dateTimeMin <- as.POSIXct(strptime(paste(c(str_c(input$dates[1]),
