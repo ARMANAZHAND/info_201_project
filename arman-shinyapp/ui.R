@@ -77,8 +77,8 @@ shinyUI(navbarPage("Seattle Crisis Statistics",
     )
   ),
   
-  tabPanel("Q1",
-    titlePanel("Crisis Report in Seattle"),
+  tabPanel("Crime Frequency",
+    titlePanel("Crime Frequency Per Hour"),
     sidebarLayout(
      sidebarPanel(
        # slider widget that allows user to pick hour range (0-23)
@@ -124,7 +124,21 @@ shinyUI(navbarPage("Seattle Crisis Statistics",
   
   tabPanel("Q3"),
   
-  tabPanel("Q4"),
+  tabPanel("Crime Proportion",
+    titlePanel("Proportion of Crime by Year and Month in Seattle"),
+    sidebarLayout(
+     sidebarPanel(
+       selectInput("select4", label = h3("Select month"), 
+                   choices = list("January" = 1, "February" = 2, "March" = 3,
+                                  "April" = 4, "May" = 5, "June" = 6,
+                                  "July" = 7, "August" = 8, "September" = 9,
+                                  "October" = 10, "November" = 11, "December" = 12), 
+                   selected = 1)
+     ),
+     mainPanel(
+       plotOutput("graph4")
+     )
+  )),
   
   tabPanel("About the Team",
     titlePanel("About the Team"),

@@ -10,9 +10,10 @@
 library(shiny)
 library(dplyr)
 library(ggplot2)
-library(stringr)
 library(shinythemes)
 library(lubridate)
+library(treemapify)
+library(stringr)
 
 seattleCrime <- data.frame(read.csv("data/crisis-data.csv", header = TRUE), stringAsFactors = FALSE)
 seattleCrime$Occurred.Date...Time <- gsub("T", " ", seattleCrime$Occurred.Date...Time)
@@ -61,6 +62,28 @@ shinyServer(function(input, output) {
       geom_text(aes(label=n), vjust=-1) +
       scale_fill_discrete()
     
+  })
+  
+  output$graph4 <- renderPlot({
+    data <- read.csv("./data/crisis-data.csv", stringsAsFactors = FALSE)
+    
+    call_data <- data %>% select(Reported.Date, Initial.Call.Type) %>% 
+      mutate(Year=year(as.Date(Reported.Date))) %>% 
+      mutate(Month=month(as.Date(Reported.Date)))
+    
+    grouped <- arrange(call_data, Year) %>%
+      filter(Year > 1900) %>%
+      filter(Month == input$select4)
+    
+    yearWeights <- count(grouped, Year)
+    crimeSum <- sum(yearWeights$n)
+    yearWeights <- mutate(yearWeights, weight=n/crimeSum)
+    
+    # Construct a tree plot with years and weights
+    ggplot(yearWeights, aes(area = n, fill = weight, label = Year)) +
+      geom_treemap() +
+      geom_treemap_text(colour = "white", place = "centre",
+                        grow = FALSE) 
   })
   
   ## make your own desc for yourselves
