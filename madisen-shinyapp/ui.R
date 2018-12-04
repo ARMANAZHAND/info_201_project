@@ -1,33 +1,19 @@
-#
-# This is the user-interface definition of a Shiny web application. You can
-# run the application by clicking 'Run App' above.
-#
-# Find out more about building applications with Shiny here:
-# 
-#    http://shiny.rstudio.com/
-#
-
 library(shiny)
 
-# Define UI for application that draws a histogram
 shinyUI(fluidPage(
   
-  # Application title
-  titlePanel("Old Faithful Geyser Data"),
-  
-  # Sidebar with a slider input for number of bins 
+  titlePanel("Proportion of Crime by Year and Month in Seattle"),
   sidebarLayout(
     sidebarPanel(
-       sliderInput("bins",
-                   "Number of bins:",
-                   min = 1,
-                   max = 50,
-                   value = 30)
+      selectInput("select", label = h3("Select month"), 
+                  choices = list("January" = 1, "February" = 2, "March" = 3,
+                                 "April" = 4, "May" = 5, "June" = 6,
+                                 "July" = 7, "August" = 8, "September" = 9,
+                                 "October" = 10, "November" = 11, "December" = 12), 
+                  selected = 1)
     ),
-    
-    # Show a plot of the generated distribution
     mainPanel(
-       plotOutput("distPlot")
+      plotOutput("graph")
     )
   )
 ))
