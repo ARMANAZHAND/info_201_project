@@ -144,15 +144,15 @@ shinyUI(navbarPage("Seattle Crisis Statistics",
   ## The barplot shows all types of crimes/crisis
   ## reported throughout that time period
   tabPanel("Officer Dispatched",
-           titlePanel("Percentage of Officer Dispatched Regarding to Initial Call Type"),
-           sidebarLayout(
-             sidebarPanel(
-               uiOutput("types")
-             ),
-             mainPanel(
-               plotOutput("map")
-             )
-           )),
+    titlePanel("Percentage of Officer Dispatched Regarding to Initial Call Type"),
+    sidebarLayout(
+     sidebarPanel(
+       uiOutput("types")
+     ),
+     mainPanel(
+       plotOutput("map")
+     )
+    )),
   
   
   ## Fourth Visualization: Madisen
