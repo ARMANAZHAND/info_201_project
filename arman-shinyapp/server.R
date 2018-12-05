@@ -14,10 +14,16 @@ library(shinythemes)
 library(lubridate)
 library(treemapify)
 library(stringr)
+library(rsconnect)
 
 seattleCrime <- data.frame(read.csv("data/crisis-data.csv", header = TRUE), stringAsFactors = FALSE)
 seattleCrime$Occurred.Date...Time <- gsub("T", " ", seattleCrime$Occurred.Date...Time)
 seattleCrime$Occurred.Date...Time <- as.POSIXct(strptime(seattleCrime$Occurred.Date...Time, "%Y-%m-%d %H:%M:%S"))
+
+
+
+rsconnect::setAccountInfo(name='armanazhand', token='75CF958551D0400A9FACC5DACC1986A7', secret='CMONJ3Sh0nB6f9hyVfzpBeN7rd5fTdKNxWvTBwN1')
+
 
 # Define server logic required to draw a histogram
 shinyServer(function(input, output, session) {
@@ -157,18 +163,19 @@ shinyServer(function(input, output, session) {
       mutate(Month=month(as.Date(Reported.Date)))
     
     grouped <- arrange(call_data, Year) %>%
-      filter(Year > 1900) %>%
-      filter(Month == input$select4)
+      filter(Year == input$select4) 
     
-    yearWeights <- count(grouped, Year)
-    crimeSum <- sum(yearWeights$n)
-    yearWeights <- mutate(yearWeights, weight=n/crimeSum)
+    crime_counts <- count(grouped, Month) %>%
+      mutate(month_name=month.abb[Month])
+    
+    crime_sum <- sum(crime_counts$n)
+    crime_counts <- mutate(crime_counts, proportion=-n/crime_sum)
     
     # Construct a tree plot with years and weights
-    ggplot(yearWeights, aes(area = n, fill = weight, label = Year)) +
+    ggplot(crime_counts, aes(area = n, fill = proportion, label = month_name)) +
       geom_treemap() +
       geom_treemap_text(colour = "white", place = "centre",
-                        grow = FALSE) 
+                        grow = FALSE) + theme(legend.position="none")
   })
   
   ## make your own desc for yourselves
@@ -198,8 +205,8 @@ shinyServer(function(input, output, session) {
       desc <- paste(c(input$person,
                       "is a Senior at the University of Wasington, studying ",
                       "Human Centered Design & Engineering. In her free time, she enjoys ",
-                      "going for runs, playing on an IM bball team, and getting bubble tea  ",
-                      "or sushi with friends."))
+                      "going for runs, playing on an IM basketball team with friends, and ",
+                      "going out for bubble tea or sushi."))
     } else {
       desc <- ""
     }
@@ -214,8 +221,6 @@ shinyServer(function(input, output, session) {
       list(src = "pics/danfeng.jpg", width = 500, height = 400)
     } else if (input$person == "Madisen Arurang") {
       list(src = "pics/madisen.jpg", width = 300, height = 400)
-    } else {
-      
     }
   }, deleteFile = FALSE)
   
