@@ -155,7 +155,8 @@ shinyUI(navbarPage("Seattle Crisis Statistics",
        textOutput("dy")
      ),
      mainPanel(
-       plotOutput("dispatched")
+       plotOutput("dispatched"), 
+       textOutput("officer_dispatch_text")
      )
     )),
   

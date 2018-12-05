@@ -122,6 +122,17 @@ shinyServer(function(input, output, session) {
     
   })
   
+  output$officer_dispatch_text <- renderText({
+    "This bar graph shows the percentage of officer dispatched corresponding to the initial
+    call type.
+    We can see in the plot that there are much more officer dispatched to the call 
+    for types such as suicidal person and attempts. This is because suicidal attempts 
+    usually results in lost of human lives, and the attempts can be stopped by officers. 
+    Whereas for suspicious person, vehicle or incident, there are less officer dispatch, 
+    since the caller is not harmed by anyone by the time of calling, it may be a waste of 
+    police force if officer dispatch for every incident of suspicious person."
+  })
+  
   output$aa <- renderText({
     "Curated by Arman Azhand"
   })
