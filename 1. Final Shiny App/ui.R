@@ -1,12 +1,9 @@
-#
-# This is the user-interface definition of a Shiny web application. You can
-# run the application by clicking 'Run App' above.
-#
-# Find out more about building applications with Shiny here:
-# 
-#    http://shiny.rstudio.com/
-#
+### Final Project
+### Fantastic Four
+### Arman Azhand, Liam O'Keeffe, Madisen Arurang, Danfeng Yang
 
+### The UI file for our project on Seattle Crime Statistics, displayed on a Shiny App
+### For more info, please read the README.md
 library(shiny)
 library(dplyr)
 library(shinythemes)
@@ -16,7 +13,7 @@ library(rsconnect)
 ## Converts CSV to Data Frame for dplyr analysis
 seattleCrime <- data.frame(read.csv("data/crisis-data.csv", header = TRUE), stringAsFactors = FALSE)
 
-## time choices for the second visualization
+## time choices for the "Crimes at Times" Tab
 timeChoices <- c("00:00:00", "00:15:00", "00:30:00", "00:45:00",
                  "01:00:00", "01:15:00", "01:30:00", "01:45:00",
                  "02:00:00", "02:15:00", "02:30:00", "02:45:00",
@@ -43,8 +40,10 @@ timeChoices <- c("00:00:00", "00:15:00", "00:30:00", "00:45:00",
                  "23:00:00", "23:15:00", "23:30:00", "23:45:00",
                  "23:59:59")
 
+# Team Member Names
 members <- c("Arman Azhand", "Danfeng Yang", "Madisen Arurang", "Liam O'Keeffe")
 
+# Function to align certain app elements in the center
 alignCenter <- function(el) {
   htmltools::tagAppendAttributes(el,
                                  style="margin-left:auto;margin-right:auto;"
@@ -53,6 +52,7 @@ alignCenter <- function(el) {
 
 # Define UI for application that draws a histogram
 shinyUI(navbarPage("Seattle Crisis Statistics",
+  ## The Shiny App's colour theme
   theme = shinytheme("superhero"),
   
   ## Purpose panel for our project
@@ -99,7 +99,8 @@ shinyUI(navbarPage("Seattle Crisis Statistics",
      ),
      # line graph of crime frequency per hour
      mainPanel(
-       plotOutput("graph1")
+       plotOutput("graph1"),
+       textOutput("crime_freqency_text")
      )
     )),
   
@@ -129,10 +130,11 @@ shinyUI(navbarPage("Seattle Crisis Statistics",
                     "Time of Day To (@ ending date):",
                     choices = timeChoices,
                     selected = timeChoices[97]),
-        textOutput("aa")
+        textOutput("aa"),
+        textOutput("crime_time_text")
       ),
       
-      # Show a barplot of the crimes in the date-time range
+      # Shows a barplot of the crimes in the date-time range
       mainPanel(
         plotOutput("crimeTime", width = "100%", height = "850px")
       )
@@ -154,7 +156,8 @@ shinyUI(navbarPage("Seattle Crisis Statistics",
        textOutput("dy")
      ),
      mainPanel(
-       plotOutput("dispatched")
+       plotOutput("dispatched"), 
+       textOutput("officer_dispatch_text")
      )
     )),
   
@@ -174,7 +177,8 @@ shinyUI(navbarPage("Seattle Crisis Statistics",
        textOutput("ma")
      ),
      mainPanel(
-       plotOutput("graph4")
+       plotOutput("graph4"),
+       textOutput("month_year_crime_text")
      )
   )),
   

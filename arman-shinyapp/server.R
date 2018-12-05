@@ -1,12 +1,9 @@
-#
-# This is the server logic of a Shiny web application. You can run the 
-# application by clicking 'Run App' above.
-#
-# Find out more about building applications with Shiny here:
-# 
-#    http://shiny.rstudio.com/
-#
+### Final Project
+### Fantastic Four
+### Arman Azhand, Liam O'Keeffe, Madisen Arurang, Danfeng Yang
 
+### The Server file for our project on Seattle Crime Statistics, displayed on a Shiny App
+### For more info, please read the README.md
 library(shiny)
 library(dplyr)
 library(ggplot2)
@@ -16,17 +13,59 @@ library(treemapify)
 library(stringr)
 library(rsconnect)
 
+## Making Data into dataframe and minor manipulation for easier reading
 seattleCrime <- data.frame(read.csv("data/crisis-data.csv", header = TRUE), stringAsFactors = FALSE)
 seattleCrime$Occurred.Date...Time <- gsub("T", " ", seattleCrime$Occurred.Date...Time)
 seattleCrime$Occurred.Date...Time <- as.POSIXct(strptime(seattleCrime$Occurred.Date...Time, "%Y-%m-%d %H:%M:%S"))
 
-
-
-rsconnect::setAccountInfo(name='armanazhand', token='75CF958551D0400A9FACC5DACC1986A7', secret='CMONJ3Sh0nB6f9hyVfzpBeN7rd5fTdKNxWvTBwN1')
-
-
-# Define server logic required to draw a histogram
+# Server Function for Shiny App
 shinyServer(function(input, output, session) {
+
+  ###############################################################################################
+  ###################################   Purpose Tab   ###########################################
+  output$dataset <- renderText({
+    desc <- paste(c("The dataset in use is provided by the city of Seattle's open database.",
+                    "It is maintained by kaggle.com, where our team was able to access it.",
+                    "The dataset contains", nrow(seattleCrime), "reported crisis in the city of Seattle.",
+                    "The data ranges from May 15th, 2015 to November 28th, 2018 and accounts for any",
+                    "reported crisis - being 911 calls or other alerts that law enforcement received."),
+                  sep = " ")
+  })
+  
+  output$audience <- renderText({
+    desc <- paste(c("Our main audience for our analysis of this dataset are law enforcement",
+                    "in the Seattle area. Since our dataset focuses on reported crisis and crimes",
+                    "in the Seattle area, we thought it would be appropriate to gear our analysis",
+                    "towards a group that could use this data to not only aid them in their job,",
+                    "but to also save more lives and limit the possibilities of certain crisis from",
+                    "escalating in the future. In other words, our analysis of the dataset will prove",
+                    "to be most useful to not only our audience, but the safety and well-being of",
+                    "the citizens of Seattle."), 
+                  sep = " ")
+  })
+  
+  output$why <- renderText({
+    desc <- paste(c("With the visualizations of this data, we hope that",
+                    "trends in crisis and crimes can be made clearer for law enforcement",
+                    "to be able to do their jobs more efficiently, safely, and effectively. Our",
+                    "biggest wish is for there to be less risks of harm for any group in any",
+                    "situation that may present itself with a faster response time."),
+                  sep = " ")
+  })
+  
+  output$img1 <- renderImage({
+    list(src = "pics/police1.jpg", width = 1000, height = 390)
+  }, deleteFile = FALSE)
+  
+  
+  output$img2 <- renderImage({
+    list(src = "pics/police2.jpg", width = 1000, height = 390)
+  }, deleteFile = FALSE)
+  
+  ###############################################################################################
+  
+  ###############################################################################################
+  ###################################  Crime Frequency Tab    ###################################
   
   # outputs line graph of frequency of crimes per hour of the day
   output$graph1 <- renderPlot({
@@ -48,12 +87,67 @@ shinyServer(function(input, output, session) {
     periods would help improve the effectiveness of the SPD."
   })
   
+  ###############################################################################################
+  
+  ###############################################################################################
+  ###################################   Crimes at Times Tab   ###################################
+  
+  ## Barplot for the "Crimes at Times" Tab  
+  output$crimeTime <- renderPlot({
+    # Start of data to look at
+    dateTimeMin <- as.POSIXct(strptime(paste(c(str_c(input$dates[1]),
+                                               input$timemin),
+                                             collapse = " "),
+                                       "%Y-%m-%d %H:%M:%S"))
+    # End of data to look at
+    dateTimeMax <- as.POSIXct(strptime(paste(c(str_c(input$dates[2]),
+                                               input$timemax),
+                                             collapse = " "),
+                                       "%Y-%m-%d %H:%M:%S"))
+    
+    # Data to focus on in count form for barplot usage
+    df <- filter(seattleCrime, Occurred.Date...Time >= dateTimeMin) %>%
+      filter(., Occurred.Date...Time <= dateTimeMax) %>%
+      count(., Final.Call.Type)
+    
+    # The making of the barplot with ggplot2
+    ggplot(data = df, aes(x = Final.Call.Type, y = n)) +
+      geom_bar(stat = "identity") +
+      xlab("Type(s) of Crime") +
+      ylab("# of Reports") +
+      ggtitle("Comparison of Crimes at Time Range") +
+      theme(axis.text.x = element_text(face="bold", color="#993333", size=12, angle=90),
+            axis.title = element_text(size = 15),
+            title = element_text(size = 20)) +
+      geom_text(aes(label=n), vjust=-1) +
+      scale_fill_discrete()
+  })
+  
+  output$crime_time_text <- renderText({
+    "This barplot graph shows the prevalency of reported crimes and crisis found in the
+    Seattle crisis data. From this graph we can see that the highest reported crime/crisis is a
+    general complaint - unsurprisingly - however, if one is to choose different date and time ranges
+    then the data shows a different story for the other crimes and how prevalent they are in those
+    time periods. Since this data is for comparing prevalency on a smaller scale, it is not wise to
+    pick a large time range (ex// more than one week) as the data becomes too chaotic and comparison
+    on a large scale makes the data less relevant. This data is important to the Seattle Police Department
+    as it allows them to keep track of dates and times of certain crisis calls. It is my hope that they can
+    then find trends and predict future crisis calls at certain times, allowing them to respond efficiently
+    and effectively in the future. Ensuring enough crisis responders are on duty for the specialized crisis
+    they are best at dealing with in carefully planned periods of time will help improve the safety of
+    the city of Seattle."
+  })
+  
+  ###############################################################################################
+  
+  ###############################################################################################
+  ################################### Officer Dispatched Tab  ###################################
+  
   ## calculate the percentage of officer dispatched with
   ## the most 15 initial call types
   readData <- reactive({
     full_data <- data.frame(read.csv("data/crisis-data.csv", header = TRUE), 
-                       stringAsFactors = FALSE)
-    
+                            stringAsFactors = FALSE)
     
     dispatched <- filter(full_data, str_detect(full_data$CIT.Officer.Dispatched, "Y"))
     
@@ -82,23 +176,23 @@ shinyServer(function(input, output, session) {
   
   ## allow user to select the initial call types
   output$types <- renderUI({
-      data_15 <- readData()
-      checkboxGroupInput("types", "Choose Types(Max 5; Min 2 types)", choices = data_15$Initial.Call.Type,
-      selected = data_15$Initial.Call.Type[4:5])
+    data_15 <- readData()
+    checkboxGroupInput("types", "Choose Types(Max 5; Min 2 types)", choices = data_15$Initial.Call.Type,
+                       selected = data_15$Initial.Call.Type[4:5])
   })
   
   ## make a limit of how many initial call types the user
   ## can choose. max 5 and min 2 types
   observe({
-      data_15 <- readData()
-      if(length(input$types) > 5)
-      {
-          updateCheckboxGroupInput(session, "types", selected = tail(input$types,5))
-      }
-      if(length(input$types) < 2)
-      {
-          updateCheckboxGroupInput(session, "types", selected = data_15$Initial.Call.Type[4:5])
-      }
+    data_15 <- readData()
+    if(length(input$types) > 5)
+    {
+      updateCheckboxGroupInput(session, "types", selected = tail(input$types,5))
+    }
+    if(length(input$types) < 2)
+    {
+      updateCheckboxGroupInput(session, "types", selected = data_15$Initial.Call.Type[4:5])
+    }
   })
   
   ## make a bar plot of the percentage of officer dispatched
@@ -122,6 +216,7 @@ shinyServer(function(input, output, session) {
     
   })
   
+  ## Description for the "Officer Dispatched" Tab's Visualization
   output$officer_dispatch_text <- renderText({
     "This bar graph shows the percentage of officer dispatched corresponding to the initial
     call type.
@@ -133,49 +228,10 @@ shinyServer(function(input, output, session) {
     police force if officer dispatch for every incident of suspicious person."
   })
   
-  output$aa <- renderText({
-    "Curated by Arman Azhand"
-  })
+  ###############################################################################################
   
-  output$lo <- renderText({
-    "Curated by Liam O'Keeffe"
-  })
-  
-  output$ma <- renderText({
-    "Curated by Madisen Arurang"
-  })
-  
-  output$dy <- renderText({
-    "Curated by Danfeng Yang"
-  })
-   
-  output$crimeTime <- renderPlot({
-    dateTimeMin <- as.POSIXct(strptime(paste(c(str_c(input$dates[1]),
-                                               input$timemin),
-                                             collapse = " "),
-                                       "%Y-%m-%d %H:%M:%S"))
-    dateTimeMax <- as.POSIXct(strptime(paste(c(str_c(input$dates[2]),
-                                               input$timemax),
-                                             collapse = " "),
-                                       "%Y-%m-%d %H:%M:%S"))
-    
-    df <- filter(seattleCrime, Occurred.Date...Time >= dateTimeMin) %>%
-      filter(., Occurred.Date...Time <= dateTimeMax) %>%
-      count(., Final.Call.Type)
-    
-    
-    ggplot(data = df, aes(x = Final.Call.Type, y = n)) +
-      geom_bar(stat = "identity") +
-      xlab("Type(s) of Crime") +
-      ylab("# of Reports") +
-      ggtitle("Comparison of Crimes at Time Range") +
-      theme(axis.text.x = element_text(face="bold", color="#993333", size=12, angle=90),
-            axis.title = element_text(size = 15),
-            title = element_text(size = 20)) +
-      geom_text(aes(label=n), vjust=-1) +
-      scale_fill_discrete()
-    
-  })
+  ###############################################################################################
+  ###################################  Crime Proportion Tab   ###################################
   
   output$graph4 <- renderPlot({
     data <- read.csv("./data/crisis-data.csv", stringsAsFactors = FALSE)
@@ -212,7 +268,12 @@ shinyServer(function(input, output, session) {
     changed over the past couple of years." 
   })
   
-  ## make your own desc for yourselves
+  ###############################################################################################
+  
+  ###############################################################################################
+  ###################################   About the Team Tab    ###################################
+  
+  ## Team Member Descriptions for the "About the Team" Tab
   output$memberDesc <- renderText({
     if(input$person == "Arman Azhand") {
       desc <- paste(c(input$person,
@@ -241,11 +302,10 @@ shinyServer(function(input, output, session) {
                       "Human Centered Design & Engineering. In her free time, she enjoys ",
                       "going for runs, playing on an IM basketball team with friends, and ",
                       "going out for bubble tea or sushi."))
-    } else {
-      desc <- ""
     }
   })
   
+  ## Pictures of our wonderful faces
   output$memberImg <- renderImage({
     if(input$person == "Arman Azhand") {
       list(src = "pics/arman.jpg", width = 400, height = 400)
@@ -258,43 +318,24 @@ shinyServer(function(input, output, session) {
     }
   }, deleteFile = FALSE)
   
-  output$dataset <- renderText({
-    desc <- paste(c("The dataset in use is provided by the city of Seattle's open database.",
-              "It is maintained by kaggle.com, where our team was able to access it.",
-              "The dataset contains", nrow(seattleCrime), "reported crisis in the city of Seattle.",
-              "The data ranges from May 15th, 2015 to November 28th, 2018 and accounts for any",
-              "reported crisis - being 911 calls or other alerts that law enforcement received."),
-              sep = " ")
+  ###############################################################################################
+  
+  ## Creator Tags
+  output$aa <- renderText({
+    "Curated by Arman Azhand"
   })
   
-  output$audience <- renderText({
-    desc <- paste(c("Our main audience for our analysis of this dataset are law enforcement",
-                    "in the Seattle area. Since our dataset focuses on reported crisis and crimes",
-                    "in the Seattle area, we thought it would be appropriate to gear our analysis",
-                    "towards a group that could use this data to not only aid them in their job,",
-                    "but to also save more lives and limit the possibilities of certain crisis from",
-                    "escalating in the future. In other words, our analysis of the dataset will prove",
-                    "to be most useful to not only our audience, but the safety and well-being of",
-                    "the citizens of Seattle."), 
-                  sep = " ")
+  output$lo <- renderText({
+    "Curated by Liam O'Keeffe"
   })
   
-  output$why <- renderText({
-    desc <- paste(c("With the visualizations of this data, we hope that",
-                    "trends in crisis and crimes can be made clearer for law enforcement",
-                    "to be able to do their jobs more efficiently, safely, and effectively. Our",
-                    "biggest wish is for there to be less risks of harm for any group in any",
-                    "situation that may present itself with a faster response time."),
-                  sep = " ")
+  output$ma <- renderText({
+    "Curated by Madisen Arurang"
   })
   
-  output$img1 <- renderImage({
-    list(src = "pics/police1.jpg", width = 1000, height = 390)
-  }, deleteFile = FALSE)
+  output$dy <- renderText({
+    "Curated by Danfeng Yang"
+  })
   
-  
-  output$img2 <- renderImage({
-    list(src = "pics/police2.jpg", width = 1000, height = 390)
-  }, deleteFile = FALSE)
   
 })
