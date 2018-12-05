@@ -200,6 +200,18 @@ shinyServer(function(input, output, session) {
                         grow = FALSE) + theme(legend.position="none")
   })
   
+  output$month_year_crime_text <- renderText({
+    "This tree map shows Seattle crime data categorized by year and month. Each tile represents 
+    a month (only for months where data was made available in the data set), where the area of 
+    the tile and its color are proportional to crime density, relative to other months in the 
+    selected year.  Lighter tiles denote lower rates of crime activity, while darker tiles denote 
+    higher rates of crime activity. This visualization is important because it can help provide 
+    insight about what months tend to see more crime, as well as give people the opportunity to 
+    see how current events impact crime density.  Furthermore, this visualization can serve as a 
+    tool for SPD and people of the greater Seattle area to learn about how crime activity has 
+    changed over the past couple of years." 
+  })
+  
   ## make your own desc for yourselves
   output$memberDesc <- renderText({
     if(input$person == "Arman Azhand") {
