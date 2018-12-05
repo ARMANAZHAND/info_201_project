@@ -28,6 +28,7 @@ rsconnect::setAccountInfo(name='armanazhand', token='75CF958551D0400A9FACC5DACC1
 # Define server logic required to draw a histogram
 shinyServer(function(input, output, session) {
   
+  # outputs line graph of frequency of crimes per hour of the day
   output$graph1 <- renderPlot({
     data <- read.csv("./data/crisis-data.csv", stringsAsFactors = FALSE)
     data$Reported.Time <- hour(as.POSIXct(data$Reported.Time, format="%H:%M:%S"))
@@ -37,6 +38,16 @@ shinyServer(function(input, output, session) {
     ggplot(data=subset, aes(x=subset$`data$Reported.Time`, y = subset$n, group = 1)) + geom_line() +
       xlab("Hour of the Day") + ylab("Frequency") + ggtitle("Frequency of crime rate per hour")
   })
+  
+  output$crime_freqency_text <- renderText({
+    "This line graph shows the frequency of crimes reported at every hour of a day from the 
+    Seattle crisis data. From this graph we can see that the peak crime hours are around 6-7 P.M.
+    While the times that saw the least amount of crime were around 4-6 A.M. This data is important
+    to the Seattle Police Department because it would allow them to predict the times when crimes
+    are most likely to happen and respond efficiently. Ensuring enough policemen are on call at peak 
+    periods would help improve the effectiveness of the SPD."
+  })
+  
   ## calculate the percentage of officer dispatched with
   ## the most 15 initial call types
   readData <- reactive({

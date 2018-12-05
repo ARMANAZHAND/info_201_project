@@ -99,7 +99,8 @@ shinyUI(navbarPage("Seattle Crisis Statistics",
      ),
      # line graph of crime frequency per hour
      mainPanel(
-       plotOutput("graph1")
+       plotOutput("graph1"),
+       textOutput("crime_freqency_text")
      )
     )),
   
